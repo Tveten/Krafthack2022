@@ -13,3 +13,6 @@ Imports:
     data.table (>= 1.12),
     ggplot2 (>= 3.2),
     lubridate
+Remotes:
+    Tveten/capacc
+RoxygenNote: 7.1.1
