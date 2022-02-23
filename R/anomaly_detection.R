@@ -3,6 +3,8 @@
 #' @param x Data matrix.
 #'
 #' @return A capacc object.
+#'
+#' @export
 detect_anomalies_capacc <- function(x, est_band = 2, b = 1, b_point = 1, minsl = 2) {
   p <- ncol(x)
   adjacency_matrix <- capacc::adjacency_mat(
