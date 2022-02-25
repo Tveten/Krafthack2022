@@ -20,3 +20,6 @@ detect_anomalies_capacc <- function(x, est_band = 2, b = 1, b_point = 1, minsl =
     min_seg_len = minsl
   )
 }
+
+#hei
+
