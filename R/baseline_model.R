@@ -10,3 +10,8 @@ linear_model <- function(x, response, covariates) {
   model_formula <- formula(paste0(response, " ~ ", covariates_formula))
   lm(model_formula, data = x)
 }
+
+robust_linear_model <- function() {
+
+}
+
