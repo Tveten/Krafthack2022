@@ -20,7 +20,14 @@ detect_anomalies_capacc <- function(x, est_band = 2, b = 1, b_point = 1, minsl =
     min_seg_len = minsl
   )
 }
-
+#' @export
+is_in_interval = function(x, interval){
+  retval=FALSE
+  if(x>= interval[1] && x<= interval[2]){
+    retval=TRUE
+  }
+  return(retval)
+}
 #' @export
 anomalies_from_cpt <- function(cpt, x, tol = 1) {
   if (length(cpt) == 0) {
@@ -71,4 +78,71 @@ anomalies_from_cpt <- function(cpt, x, tol = 1) {
   anoms <- data.table(start = starts, end = ends)
   return(list("collective" = anoms[start != end],
               "point"      = data.table(location = anoms[start == end, start])))
+}
+
+#' Takes in an Inspect result and spits out an object that can be printed
+#' by plot_capacc_external
+#' @export
+anomalies_from_inspect <- function(inspectres, x, tol = 1) {
+  tmpres = anomalies_from_cpt(res$changepoints, x, tol)
+  collective =tmpres$collective
+  point =tmpres$point
+  anom = data.frame()
+  counter = 1
+  p = ncol(x)
+  if(nrow(collective)+nrow(point)==0){
+    return(list("collective" = data.table(start = integer(0), end = integer(0)),
+                "point"      = data.table(location = integer(0)),
+                "variate"      = data.table(location = integer(0)),
+                "size"      = data.table(location = integer(0)))
+           )
+  }
+  if(nrow(collective)>0){
+    for (i in 1:nrow(collective)) {
+      currentrow = collective[i,]
+      start = currentrow[[1]]-1
+      stop = currentrow[[2]]
+      startchgptnum = which(inspectres$changepoints==start, arr.ind=TRUE)
+      stopchgptnum = which(inspectres$changepoints==stop, arr.ind=TRUE)
+      coordinates = inspectres$coordinate[,startchgptnum] | inspectres$coordinate[,stopchgptnum]
+
+      for (j in 1:p) {
+        if(coordinates[j]){
+          anom[counter, "start"] = start+1
+          anom[counter, "end"] = stop
+          anom[counter, "variate"] = j
+          anom[counter, "size"] = 0.0
+          counter = counter+1
+        }
+
+
+      }
+    }
+  }
+
+  if(nrow(point)>0){
+    for (i in 1:nrow(point)) {
+      currentrow = point[i,]
+      start = currentrow[[1]]-1
+      stop = currentrow[[2]]
+      startchgptnum = which(inspectres$changepoints==start, arr.ind=TRUE)
+      stopchgptnum = which(inspectres$changepoints==stop, arr.ind=TRUE)
+      coordinates = inspectres$coordinate[,startchgptnum] |inspectres$coordinate[,stopchgptnum]
+
+      for (j in 1:p) {
+        if(coordinates[j]){
+          anom[counter, "start"] = start
+          anom[counter, "stop"] = stop
+          anom[counter, "variate"] = j
+          anom[counter, "size"] = 0.0
+          counter = counter+1
+        }
+
+
+      }
+    }
+  }
+  setDT(anom, keep.rownames = FALSE)
+
+  return(list("x"=x, "anoms"=anom))
 }

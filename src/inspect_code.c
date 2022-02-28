@@ -520,7 +520,7 @@ void internal_inspectOnSegment(double * cumsums, double * cusum, int * maxpos, d
 void myInspect_call(double * x, int s, int e, int n, int p, int depth, int* changepoints,int* changepoint_counter_ptr, int * depthcounter,
                 double * maxval, double threshold,int adaptTresh, double *cumsums, int* lens, int lenLens, double lambda,
                 double eps, int maxiter, int * segstarts, double * maxcusums, int* maxpos, int K, double * cusum, double * mhat,
-                double * mhatprod, double * v, double * v2, int debug){
+                double * mhatprod, double * v, double * v2, int debug,int * coordchg){
     if(debug){
         printf("myInspectCall! s=%d, e=%d\n", s, e);
     }
@@ -542,7 +542,8 @@ void myInspect_call(double * x, int s, int e, int n, int p, int depth, int* chan
     int i;
 
     double thresh = threshold;
-
+    int j_max=0;
+    int k_max = 0;
     for (int j = 0; j < lenLens; ++j)
     {
         len = lens[j];
@@ -591,6 +592,8 @@ void myInspect_call(double * x, int s, int e, int n, int p, int depth, int* chan
             if(tmp>maximum){
                 maximum = tmp;
                 argmax = maxpos[cord_spec(k,j,n)];
+                j_max = j;
+                k_max=k;
                 //found=1;
             }
 
@@ -609,7 +612,21 @@ void myInspect_call(double * x, int s, int e, int n, int p, int depth, int* chan
         if(debug){
             printf("!!!!!! declared change-point in %d. val = %f, thresh =%f\n", argmax, maximum, thresh);
         }
-
+        // identify in which coordinates the change happens:
+        i = segstarts[cord_spec(k_max,j_max,n)];
+        len = lens[j_max];
+        int ss = i;
+        int ee = i+len;
+        inspectCUSUM(cumsums, cusum, ss, ee, p);
+        double * projvec = internal_sparse_svd(cusum, p, ee-ss-1, lambda*sqrt(log(p*(ee-ss-1))), eps, maxiter,
+                        mhat, mhatprod, v, v2,debug);
+        for (int zz = 0; zz < p; ++zz)
+        {
+            if(fabs(projvec[zz])>1e-6){
+                coordchg[cord_spec(zz,*changepoint_counter_ptr, p)]=1;
+            }
+        }
+        
         changepoints[*changepoint_counter_ptr] = argmax;
         depthcounter[*changepoint_counter_ptr] = depth;
         maxval[*changepoint_counter_ptr] = maximum;
@@ -619,13 +636,13 @@ void myInspect_call(double * x, int s, int e, int n, int p, int depth, int* chan
         myInspect_call(x, s, argmax, n, p, depth+1, changepoints, changepoint_counter_ptr, depthcounter,
                 maxval,threshold, adaptTresh, cumsums, lens, lenLens, lambda,
                 eps, maxiter, segstarts, maxcusums, maxpos, K,  cusum, mhat,
-                mhatprod, v, v2,debug);
+                mhatprod, v, v2,debug,coordchg);
         //myInspect_call(x, argmax, e, n, p, depth+1, changepoints, changepoint_counter_ptr, depthcounter,  maxval, threshold,
         //        adaptTresh, cumsums, lens, lenLens, K, cusum, mhat, mhatprod, v, v2);
         myInspect_call(x, argmax, e, n, p, depth+1, changepoints, changepoint_counter_ptr, depthcounter,
                 maxval,threshold, adaptTresh, cumsums, lens, lenLens, lambda,
                 eps, maxiter, segstarts, maxcusums, maxpos, K,  cusum, mhat,
-                mhatprod, v, v2,debug);
+                mhatprod, v, v2,debug,coordchg);
 
     }
 
@@ -677,7 +694,9 @@ SEXP myInspect(SEXP XI,SEXP nI, SEXP pI,SEXP thresholdI, SEXP adaptTreshI, SEXP 
     SEXP depthcounterSEXP= PROTECT(allocVector(INTSXP, n));
     int * depthcounter = INTEGER(depthcounterSEXP); //pointer to array
     memset(depthcounter, 0, sizeof(int)*n);
-
+    SEXP coordschgSEXP = PROTECT(allocVector(INTSXP, n*p));
+    int * coordchg = INTEGER(coordschgSEXP);
+    memset(coordchg, 0, sizeof(int)*n*p);
     // first we compute all the cumulative sums of all
     // coordinates:
 
@@ -774,24 +793,26 @@ SEXP myInspect(SEXP XI,SEXP nI, SEXP pI,SEXP thresholdI, SEXP adaptTreshI, SEXP 
     myInspect_call(X, 0, n, n, p, 1, changepoints, changepoint_counter_ptr, depthcounter,
                 maxval, threshold, adaptTresh, cumsums, lens, lenLens, lambda,
                 eps, maxiter, segstarts, maxcusums, maxpos, K, cusum, mhat,
-                mhatprod, v, v2,debug);
+                mhatprod, v, v2,debug,coordchg);
 
     // return:
-    SEXP ret = PROTECT(allocVector(VECSXP, 3)); //the list to be returned in R
+    SEXP ret = PROTECT(allocVector(VECSXP, 4)); //the list to be returned in R
     SET_VECTOR_ELT(ret, 0, out);
     SET_VECTOR_ELT(ret, 1, maxvalSEXP);
     SET_VECTOR_ELT(ret, 2, depthcounterSEXP);
+    SET_VECTOR_ELT(ret, 3, coordschgSEXP);
 
     // creating list of names/titles to be returned in the output list
-    SEXP names = PROTECT(allocVector(STRSXP, 3));
+    SEXP names = PROTECT(allocVector(STRSXP, 4));
     //SET_STRING_ELT(names, 0, mkChar("CUSUM"));
     SET_STRING_ELT(names, 0, mkChar("changepoints"));
     SET_STRING_ELT(names, 1, mkChar("CUSUMval"));
     SET_STRING_ELT(names, 2, mkChar("depth"));
+    SET_STRING_ELT(names, 3, mkChar("coordinate"));
 
     setAttrib(ret, R_NamesSymbol, names);
 
-    UNPROTECT(15);
+    UNPROTECT(16);
     return ret;
 }
 

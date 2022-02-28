@@ -22,17 +22,12 @@ response_data <- as.matrix(data[, ..responses])
 residuals <- response_data - predictions
 
 
-# chgpt detection on residuals using inspect:
-res = myInspectR(t(residuals), threshold=2, adaptive_threshold=FALSE, alpha = 1.2, K = 10,eps=1e-10,
-                lambda = 6, maxiter=10000,debug=FALSE)
 
-# Anomaly detection in residuals.
-# Here: CAPA-CC. But we could add several methods to try in R/anomaly_detection.R
-precision_matrix_band <- 4
-penalty_scaling <- 1.5
-anomaly_results <- detect_anomalies_capacc(
-  residuals,
-  est_band = precision_matrix_band,
-  b = penalty_scaling
-)
-plot(anomaly_results)
+# chgpt detection on residuals using inspect:
+res = myInspectR(t(residuals), threshold=6, adaptive_threshold=FALSE, alpha = 1.2, K = 10,eps=1e-10,
+                lambda = 2, maxiter=10000,debug=FALSE)
+
+inspect_anomalies =anomalies_from_inspect(res, residuals)
+
+plot_capacc_external(inspect_anomalies2)
+

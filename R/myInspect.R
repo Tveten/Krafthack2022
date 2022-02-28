@@ -1,4 +1,5 @@
 #' @useDynLib Krafthack2022 myInspect
+#' @export
 myInspectR = function(X, threshold=2, adaptive_threshold=TRUE, alpha = 1.2, K = 20,eps=1e-10,
                      lambda = 1, maxiter=10000,debug =FALSE){
   p = dim(X)[1]
@@ -37,7 +38,14 @@ myInspectR = function(X, threshold=2, adaptive_threshold=TRUE, alpha = 1.2, K = 
   srt_indices = sort(res$changepoints, decreasing =FALSE, index.return=TRUE)$ix
   res$changepoints = res$changepoints[srt_indices]
   res$CUSUMval = res$CUSUMval[srt_indices]
-  res$repth = res$depth[srt_indices]
+  res$depth = res$depth[srt_indices]
+  if(num_nonzero==0){
+    res$coordinate = NULL
+  }
+  else{
+    res$coordinate = matrix(res$coordinate,nrow = p, ncol=n)
+    res$coordinate = res$coordinate[,1:num_nonzero]
+  }
 
   return(res)
 }
