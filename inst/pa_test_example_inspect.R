@@ -24,10 +24,14 @@ residuals <- response_data - predictions
 
 
 # chgpt detection on residuals using inspect:
-res = myInspectR(t(residuals), threshold=6, adaptive_threshold=FALSE, alpha = 1.2, K = 10,eps=1e-10,
-                lambda = 2, maxiter=10000,debug=FALSE)
+p = dim(residuals)[2]
+xi = 4*sqrt(log(p*n))
+#lambda = sqrt(log(p*log(n)))
+lambda = xi
+res = Inspect(t(residuals), lambda = lambda, xi=xi, alpha = 1.2, K = 10,eps=1e-10,
+                maxiter=10000,debug=FALSE)
 
 inspect_anomalies =anomalies_from_inspect(res, residuals)
 
-plot_capacc_external(inspect_anomalies2)
+plot_capacc_external(inspect_anomalies)
 
