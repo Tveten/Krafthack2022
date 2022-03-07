@@ -1,0 +1,40 @@
+---
+title: "Introduction to changepoint-based anomaly detection"
+author: "Martin Tveten"
+date: "24.02.2020"
+output:
+  ioslides_presentation:
+    logo: images/NR_logo_grunnform_stor_rgb.jpg
+    css: NR.css
+    incremental: true
+    widescreen: true
+    transition: faster
+---
+
+
+```{r setup, include=FALSE}
+library(changepoint)
+library(anomaly)
+library(capacc)
+library(ggplot2)
+library(ggpubr)
+
+```
+
+## Overview
+
+1) Changepoint models.
+2) Anomaly detection
+
+    b) Univariate data.
+    c) Multivariate data.
+3) My research
+
+# Changepoint models 
+
+## Origin {.smaller}
+
+```{r intro_single_mean, echo=FALSE, out.height="60%"}
+x <- rnorm(100)
+```
+
