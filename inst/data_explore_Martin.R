@@ -2,6 +2,7 @@ library(data.table)
 library(ggplot2)
 library(stringr)
 library(GGally)
+library(Krafthack2022)
 
 # Plot settings:
 base_height <- 1152
@@ -80,36 +81,23 @@ for (response in responses) {
   )
 }
 
-
-find_burnin_and_shutdown <- function(dt, tol = 3 * 60) {
-  dt <- dt[!is.na(Unit_4_Power)]
-  dt[, sec := as.numeric(difftime(timepoints, timepoints[1]))]
-  dt[, sec_to_previous := c(1, sec[-1] - sec[-.N])]
-
-  segment_start <- c(1, dt[, which(sec_to_previous > tol)], nrow(dt) + 1)
-  n_segments <- length(segment_start) - 1
-  seg_nr <- rep(1:n_segments, times = diff(segment_start))
-  dt[, segment_nr := seg_nr]
-
-  dt[mode == "operation", dpower := c(0, diff(Unit_4_Power)), by = segment_nr]
-  dt[
-    mode == "operation",
-    burnin_stop := .SD[, which(dpower < 0)[1]],
-    by = segment_nr
-  ]
-  dt[mode == "operation", "within_segment_index" := 1:.N, by = segment_nr]
-  dt[within_segment_index < burnin_stop, mode := "burnin"]
-
-  dt[
-    mode == "operation",
-    shutdown_start := .SD[, tail(which(dpower >= 0), 1)],
-    by = segment_nr
-  ]
-  dt[within_segment_index > shutdown_start, mode := "shutdown"]
-  dt
-}
-
+## With burnin and shutdown periods.
 dt <- find_burnin_and_shutdown(dt)
+responses <- paste0("Bolt_", 1:6, "_Tensile")
+for (response in responses) {
+  plots <- lapply(predictors, function(p) {
+    ggplot(dt, aes_string(p, response, colour = "mode")) +
+      geom_point(size = 0.1)
+  })
+  pp <- ggpubr::ggarrange(plotlist = plots, nrow = 2, ncol = 3)
+  ggsave(
+    paste0(response, "_scatter.png"),
+    path = "images",
+    width = 1.5 * base_width,
+    height = 1.5 * base_height,
+    units = "px"
+  )
+}
 
 
 
