@@ -47,6 +47,18 @@ plot(pred_glmnet1,type="l",col=2)
 lines(input2$Bolt_1_Tensile[!subset1], col=1)
 mpe(pred_glmnet1,input2$Bolt_1_Tensile[!subset1] )
 
+
+input2 = find_burnin_and_shutdown(input2)
+
+
+
+
+
+
+
+
+
+
 ## massive elastic net:
 covariates2 = c()
 for (i in 1:length(covariates)) {
