@@ -1,0 +1,79 @@
+About the case
+Water flow dynamics are challenging, particularly when you need to regulate 538 meters of water and simultaneously consider the needs from the power market.
+
+Kvilldal is equipped with four Francis turbines, which are fundamental to generating over 3 000 GWh of energy every single year. These turbines are subject to an ever-changing environment with complex load requirements, as they need to start, stop, and adjust to varying water conditions. These changing loads result in stresses on the structure, and it is vital to monitor the turbine to minimize forces on the turbine components and maintain a high level of safety.
+
+In this challenge, Statkraft will share a real data set collected from one of the turbines installed in the Kvilldal plant. The turbine is equipped with multiple sensors, including strain gauges, with supporting operational data (power, speed...).
+
+The dataset will be provided in a table format and made available as CSV files (or other tabular equivalent). The dataset will be pre-processed to accommodate for known data errors (e.g. lost connectivity, sensor reliability) to allow attendees to focus on the modeling rather than data preparation.
+
+
+
+Data:
+* Do we get training data only? Test data only for evaluation?
+* How is quantitative testing done?
+  - Automatic after we deliver some model?
+  - What performance measures?
+* One turbine, one main valve:
+  - 23 Sensors:
+    * pressure in waterway, strain gauges, temperatures and vibration data for the turbine environment
+  - Operating conditions.
+  - Bolt conditions:
+    * Strain gauges: Tensile and torsional.
+  - Vibrations:
+  - In turbine and lower bearing.
+    * Bolt conditions: T
+  - Sensors on the valve that start and stop water.
+  - Operational mode data:
+    * power, current, guide vane opening and rotational speed
+* Which are explanatory variables and which are responses?
+* Any sensors where anomalies should have most signal?
+* Time resolution?
+* Total time span?
+* Preprocessed to accomodate for known data errors
+  - May still be more unknown errors.
+* Online or offline anomaly detection?
+* Old and new equipment.
+* Stopping and starting equipment.
+* 5 min to accelerate water up to full speed.
+* Unit 4 - new runner.
+* Crack on lower cover.
+* 120 bolts, 0.7 m and 53 mm diameter.
+* Inspections: Intrusive liquid + ultrasonic.
+*
+
+23 sensors:
+* Operating conditions.
+* Bolt conditions.
+* Vibrations:
+  - In turbine and lower bearing.
+
+* Seasonality.
+* Bolt proximity to crack.
+* Time since last run (see mode).
+* Time gaps due to connectivity issues.
+
+Delivery:
+* Model results.
+* Code.
+* Pitch deck (a short pdf describing work):
+  - Data exploration.
+  - Model consideration.
+  - Putting it into production.
+  - Scalability and transferability.
+
+Jury judgment:
+* Code availability and understanding.
+* Model performance: Mean absolute percentage error -> average across all and individually.
+* Real-world application.
+
+Results:
+* .csv with predictions on same format as input.
+* .pdf with pitch deck.
+
+
+Judging committee:
+* Domain experts
+* Computer and data science
+* Engineering
+
