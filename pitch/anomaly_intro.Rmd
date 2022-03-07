@@ -2,13 +2,15 @@
 title: "Krafthack pitch"
 author: "Martin Tveten & Per August Moen"
 date: "08/03/2022"
-output: 
-  ioslides_presentation:
-    logo: images/NR_logo_grunnform_stor_rgb.jpg
-    css: NR.css
-    incremental: true
-    widescreen: true
-    transition: faster
+# output: 
+#   ioslides_presentation:
+#     logo: images/NR_logo_grunnform_stor_rgb.jpg
+#     css: NR.css
+#     incremental: true
+#     widescreen: true
+#     transition: faster
+output:
+  pdf_document
 ---
 
 
@@ -21,8 +23,19 @@ output:
 
 ```
 
+## Where to find the code
+Our code is written into an R package which can be installed as such: 
+You can install Krafthack2022 from github with:
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("Tveten/Krafthack2022")
+```
+The code can also be found [here](https://github.com/Tveten/Krafthack2022). 
+
+The code that produces the predictions is found in ../inst/data_prediction.R. 
+
 ## Overview
-We have fitted separate a linear (ridge regression ) model to each bolt tensil. Our motivation for this choice of model is two-fold: firstly, we are curious as to how well such a simple model can perform; secondly, we find many linear relationships in the data, suggesting that a linear model can be a reasonable assumption.
+We have fitted separate a linear (ridge regression ) model to each bolt tensil using all possible interactions of the features. Our motivation for this choice of model is two-fold: firstly, we are curious as to how well such a simple model can perform; secondly, we find many linear relationships in the data, suggesting that a linear model can be a reasonable assumption.
 
 ## Data findings -- highly correlated covariates
 ![](../images/Bolt_2_Tensile_scatter.png){width=70%}
@@ -41,9 +54,9 @@ We find that there is a clear linear relationship between time and bolt tensiles
 - In the data there is an apparent non-stationarity. In our model training, we tried to remedy this by splitting the data into training data and test data in the following fashion:  We split the data into consecutive blocks of 200 observations. Each block alternates between being used as test data or training data. 
 
 ## Augmentations
-* Burn-in and shutdown modes.
+<!-- * Burn-in and shutdown modes. -->
 ![](../images/power_epoch23.png){width=70%}
-* Seconds since end of burn-in.
+<!-- * Seconds since end of burn-in. -->
 
 We have chosen to augment the data set by introducing two new modes: "burnin" and "shutdown". In addition, we have introduced a new feature $f$ given by 
 $$
@@ -53,6 +66,7 @@ where $t$ is the time since the last burnin period ended. $f$ is zero whenever t
 
 ## Model considerations
 We have used a simple [linear ridge regression model](https://en.wikipedia.org/wiki/Ridge_regression) for each bolt separately, with features being all possible interactions between the following variables:
+
 - timepoints  
 - Unit_4_Power
 - Turbine_Guide_Vane_Opening   
