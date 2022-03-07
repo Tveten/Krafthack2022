@@ -11,9 +11,9 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     data.table (>= 1.12),
-    ggplot2 (>= 3.2),
-    lubridate,
-    arrow
+    arrow,
+    MASS,
+    glmnet
 Remotes:
     Tveten/capacc
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
