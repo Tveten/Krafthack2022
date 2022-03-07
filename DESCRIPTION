@@ -12,8 +12,9 @@ LazyData: true
 Imports:
     data.table (>= 1.12),
     ggplot2 (>= 3.2),
-    arrow
-    MASS
+    arrow,
+    MASS,
+    GGally,
     glmnet
 Remotes:
     Tveten/capacc

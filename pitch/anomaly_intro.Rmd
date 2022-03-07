@@ -1,7 +1,7 @@
 ---
 title: "Sales pitch"
 author: "Martin Tveten & Per August Moen"
-date: "24.02.2020"
+date: "08/03/2022"
 output:
   ioslides_presentation:
     incremental: true
@@ -22,15 +22,34 @@ output:
 ## Overview
 
 ## Data findings
+- High correlation
+- Jump in strain after burnin
+- Strain on bolt increase with time, at least for variables near the crack
+- 
 
 ## Model considerations
+We have used a simple linear regression models with all possible interactions of the following variables: 
+- timepoints  
+- Unit_4_Power
+- Turbine_Guide_Vane_Opening   
+- Turbine_Pressure_Drafttube
+- Turbine_Pressure_Spiral_Casing
+- Turbine_Rotational_Speed
+- mode
+
+We have also included two additional "modes" as a pre-processing step. 
+
+## Model considerations
+The linear model is simple, with its only flexibility coming from interactions
+
+- Crossplots reveal that many relationships are linear or near-linear
+
 
 ## Putting it into production
 
 ## Scalability and transferability
 
 ## Other things to do
-
 - Possible smoothing of signal
 - Fit robust models
 - Anomaly detection

@@ -7,9 +7,6 @@ library(robust)
 library(robustbase)
 #library()
 
-mpe = function(pred, true){
-  return(100* mean((true - pred)/true))
-}
 
 
 data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
@@ -50,6 +47,26 @@ plot(pred_glmnet1,type="l",col=2)
 lines(input2$Bolt_1_Tensile[!subset1], col=1)
 mpe(pred_glmnet1,input2$Bolt_1_Tensile[!subset1] )
 
+## massive elastic net:
+covariates2 = c()
+for (i in 1:length(covariates)) {
+  covar = covariates[i]
+  if(i==1 | i==7){
+    covariates2 = c(covariates2, covar)
+  }
+  else{
+    covariates2 = c(covariates2, paste("( ", covar, "+ I(", covar ,")^2)"))
+  }
+}
+formula2string = paste("Bolt_1_Tensile  ~ ", paste(covariates2, collapse="*"))
+formula2 = formula(formula2string)
+mmatrix1 = model.matrix(formula2, data= input2, subset= subset1)[subset1,]
+glmnet1 = cv.glmnet(mmatrix1,input2$Bolt_1_Tensile[subset1], alpha=0, type.measure="mae")
+mmatrix1_pred =model.matrix(formula1, data= input2, subset= subset1)[!subset1,]
+pred_glmnet1 = predict(glmnet1,mmatrix1_pred)
+plot(pred_glmnet1,type="l",col=2)
+lines(input2$Bolt_1_Tensile[!subset1], col=1)
+mpe(pred_glmnet1,input2$Bolt_1_Tensile[!subset1] )
 
 #
 # formula6 = formula(paste("Bolt_6_Tensile  ~ ", paste(names(input2)[c(1:8)], collapse="+")))
