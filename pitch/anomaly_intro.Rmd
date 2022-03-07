@@ -1,9 +1,11 @@
 ---
-title: "Sales pitch"
+title: "Krafthack pitch"
 author: "Martin Tveten & Per August Moen"
 date: "08/03/2022"
-output:
+output: 
   ioslides_presentation:
+    logo: images/NR_logo_grunnform_stor_rgb.jpg
+    css: NR.css
     incremental: true
     widescreen: true
     transition: faster
@@ -21,11 +23,24 @@ output:
 
 ## Overview
 
+## Data findings -- highly correlated covariates
+![](../images/Bolt_2_Tensile_scatter.png){width=70%}
+Reactive power just noise.
+
+## Data findings -- tensile trend
+![](../images/Bolt_1_Tensile_ts.png){width=70%}
+
+## Data findings -- Bump in some tensils after burnin
+![](../images/power_epoch17.png){width=70%}
+
 ## Data findings
-- High correlation
-- Jump in strain after burnin
-- Strain on bolt increase with time, at least for variables near the crack
-- Apparent non-stationarity (tried to remedy this by splitting into test data set with consecutive blocks of test/error of 200 seconds each)
+- Apparentnon-stationarity (tried to remedy this by splitting into test data set with consecutive blocks of test/error of 200 seconds each)
+
+## Augmentations
+
+* Burn-in and shutdown modes.
+![](../images/power_epoch23.png){width=70%}
+* Seconds since end of burn-in.
 
 ## Model considerations
 We have used a simple linear regression model for each bolt seperately, with features being all possible interactions between the following variables:
@@ -35,10 +50,8 @@ We have used a simple linear regression model for each bolt seperately, with fea
 - Turbine_Pressure_Drafttube
 - Turbine_Pressure_Spiral_Casing
 - Turbine_Rotational_Speed
-- mode
+- mode = ("start", "burnin", "operation", "shutdown")
 - length since last startup
-
-We have also included two additional "modes" as a pre-processing step: "burnin" and "shutdown". 
 
 ## Model considerations
 The linear model is simple, with its only flexibility coming from the vast number of interactions

@@ -9,8 +9,8 @@ base_height <- 1152
 base_width <- 2048
 
 data <- read_krafthack_data("../Data")
-input2 <- data[[1]]
-test_dt <- data[[2]]
+input2 <- data[[2]]
+test_dt <- data[[3]]
 
 for (column in numeric_columns) {
   ggplot(input2, aes_string("timepoints", column, colour = "mode")) +
@@ -76,8 +76,8 @@ for (response in responses) {
 
 ## With burnin and shutdown periods.
 data <- read_krafthack_data("../Data")
-input2 <- data[[1]]
-test_dt <- data[[2]]
+input2 <- data[[2]]
+test_dt <- data[[3]]
 input2 <- find_burnin_and_shutdown(input2)
 predictors <- names(test_dt)[-c(1, 8)]
 responses <- paste0("Bolt_", 1:6, "_Tensile")
@@ -89,6 +89,7 @@ for (response in responses) {
   pp <- ggpubr::ggarrange(plotlist = plots, nrow = 2, ncol = 3)
   ggsave(
     paste0(response, "_scatter_more_modes.png"),
+    plot = pp,
     path = "images",
     width = 1.5 * base_width,
     height = 1.5 * base_height,

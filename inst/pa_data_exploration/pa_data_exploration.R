@@ -10,7 +10,8 @@ library(Krafthack2022)
 
 
 
-data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
+# data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
+data = read_krafthack_data("../Data")
 input1 = data[[1]]
 input2 = data[[2]]
 test = data[[3]]
