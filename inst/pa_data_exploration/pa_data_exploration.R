@@ -52,13 +52,15 @@ mpe(pred_glmnet1,input2$Bolt_1_Tensile[!subset1] )
 
 ## adding seperate shutdown and burn-in periods
 input2 = find_burnin_and_shutdown(input2)
-input2$one_div_last_start = 1/input2$within_segment_index
+input2$one_div_last_start = 1/sqrt(input2$within_segment_index)
 input2$one_div_last_start[is.infinite(input2$one_div_last_start)] = 0
+input2$one_div_last_start[is.na(input2$one_div_last_start)] = 0
 input2$mode = as.factor(input2$mode)
-covariates = c(names(input2)[c(1:2, 4:8,22)])
-#formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * (", paste(covariates[1:6], collapse="+"), ")")
-covariates = c(names(input2)[c(1:2, 4:8,22)])
-formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"))
+covariates = c(names(input2)[c(1:2, 4:8)])
+formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * (", paste(covariates[1:6], collapse="+"), ")")
+#formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * timepoints" )
+#covariates = c(names(input2)[c(1:2, 4:8,22)])
+#formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"))
 formula2 = formula(formulastring2)
 #training linear model on training data using all possible interactions
 lm2 = lm(formula=formula2, data = input2, subset = subset1)
