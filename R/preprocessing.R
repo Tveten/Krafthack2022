@@ -1,6 +1,5 @@
 #' @export
 find_burnin_and_shutdown <- function(dt, tol = 3 * 60) {
-  dt <- dt[!is.na(Unit_4_Power)]
   dt[, sec := as.numeric(difftime(timepoints, timepoints[1]))]
   dt[, sec_to_previous := c(1, sec[-1] - sec[-.N])]
 
@@ -15,14 +14,13 @@ find_burnin_and_shutdown <- function(dt, tol = 3 * 60) {
     burnin_stop := .SD[, which(dpower < 0)[1]],
     by = segment_nr
   ]
-  dt[mode == "operation", "within_segment_index" := 1:.N, by = segment_nr]
-  dt[within_segment_index < burnin_stop, mode := "burnin"]
-
   dt[
     mode == "operation",
     shutdown_start := .SD[, tail(which(dpower >= 0), 1)],
     by = segment_nr
   ]
+  dt[mode == "operation", "within_segment_index" := 1:.N, by = segment_nr]
+  dt[within_segment_index < burnin_stop, mode := "burnin"]
   dt[within_segment_index > shutdown_start, mode := "shutdown"]
   dt
 }
