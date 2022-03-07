@@ -4,9 +4,24 @@
 #'
 #' @export
 #'
-read_data <- function() {
+read_krafthack_data <- function(directory){
+  input2 = as.data.table(arrow::read_parquet(gsub(" ", "", paste(directory, "/", "input_dataset-2.parquet"))))
+  input1 = as.data.table(arrow::read_parquet(gsub(" ", "", paste(directory, "/", "input_dataset-1.parquet"))))
+  test = as.data.table(arrow::read_parquet(gsub(" ", "", paste(directory, "/", "prediction_input.parquet"))))
+  names = (names(input2)[((names(input2) %in%  names(test) )| (names(input2) %in% c("Bolt_1_Tensile", "Bolt_2_Tensile","Bolt_3_Tensile","Bolt_4_Tensile","Bolt_5_Tensile","Bolt_6_Tensile")))])
+  input2<- input2[, ..names] # removing vibration variables
 
+  input2 = na.omit(input2)
+  input1 = na.omit(input1)
+  names(input2) <- gsub("\\s+", "_", names(input2))
+  names(input1) <- gsub("\\s+", "_", names(input1))
+  input2$mode = as.factor(input2$mode)
+  input1$mode = as.factor(input1$mode)
+  test$mode = as.factor(test$mode)
+  return(list(input1, input2, test))
 }
+
+
 
 #' Read some synthetic data.
 #'
