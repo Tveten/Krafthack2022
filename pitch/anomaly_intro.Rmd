@@ -22,28 +22,37 @@ output:
 ```
 
 ## Overview
+We have fitted separate a linear (ridge regression ) model to each bolt tensil. Our motivation for this choice of model is two-fold: firstly, we are curious as to how well such a simple model can perform; secondly, we find many linear relationships in the data, suggesting that a linear model can be a reasonable assumption.
 
 ## Data findings -- highly correlated covariates
 ![](../images/Bolt_2_Tensile_scatter.png){width=70%}
-Reactive power just noise.
+
+We find that most, if not all, of the features are highly correlated. For instance, the feature "Reactive power" is essentially just noise, and we choose to remove it from the model.
 
 ## Data findings -- tensile trend
 ![](../images/Bolt_1_Tensile_ts.png){width=70%}
+
+We find that there is a clear linear relationship between time and bolt tensiles. This suggests that a linear model can, although simple, be a reasonable model choice. 
 
 ## Data findings -- Bump in some tensils after burnin
 ![](../images/power_epoch17.png){width=70%}
 
 ## Data findings
-- Apparentnon-stationarity (tried to remedy this by splitting into test data set with consecutive blocks of test/error of 200 seconds each)
+- In the data there is an apparent non-stationarity. In our model training, we tried to remedy this by splitting the data into training data and test data in the following fashion:  We split the data into consecutive blocks of 200 observations. Each block alternates between being used as test data or training data. 
 
 ## Augmentations
-
 * Burn-in and shutdown modes.
 ![](../images/power_epoch23.png){width=70%}
 * Seconds since end of burn-in.
 
+We have chosen to augment the data set by introducing two new modes: "burnin" and "shutdown". In addition, we have introduced a new feature $f$ given by 
+$$
+f = \frac{1}{t^{1/4}},
+$$
+where $t$ is the time since the last burnin period ended. $f$ is zero whenever the mode is not "operational". 
+
 ## Model considerations
-We have used a simple linear regression model for each bolt seperately, with features being all possible interactions between the following variables:
+We have used a simple [linear ridge regression model](https://en.wikipedia.org/wiki/Ridge_regression) for each bolt separately, with features being all possible interactions between the following variables:
 - timepoints  
 - Unit_4_Power
 - Turbine_Guide_Vane_Opening   
@@ -51,26 +60,30 @@ We have used a simple linear regression model for each bolt seperately, with fea
 - Turbine_Pressure_Spiral_Casing
 - Turbine_Rotational_Speed
 - mode = ("start", "burnin", "operation", "shutdown")
-- length since last startup
+
+In addition we have included the previously defined feature $f$ and its interactions with the remaining features. 
+
+We use the "glmnet" package train the model.
 
 ## Model considerations
-The linear model is simple, with its only flexibility coming from the vast number of interactions
+The (ridge) linear model is simple, with its only flexibility coming from the vast number of interactions. 
 
-- Crossplots reveal that many relationships are linear or near-linear, and adding transformations of features has not improved prediction
+- Crossplots reveal that many relationships are linear or near-linear, and adding transformations of features has not improved prediction. 
+
+- The ridge penalty reduces risk of overfitting
 
 
 ## Putting it into production
-- Mention re-training?
-- Very fast prediction of new data points (only a linear combination)
+- Predicting new data points is very fast (only a linear combination)
+- Training the models takes around 10-15 minutes on a single CPU core (the training is higly parallelizable)
 
 ## Scalability and transferability
-- Scalability: yes, this is scalable. However, a problem is that the model is not re-trained on new data points. 
-- Could consider re-training the model with robust regression
+- Scalability: The model is scalable, but an issue is that the model is not re-trained on new data points. An option is to consider re-training the model with robust regression, which even allows for anomalous points or segments to be included in the training set.
 
-## Other things to do
-- Possible smoothing of signal
-- Fit robust models
-- Anomaly detection
+## Things we would have done if we had more time
+- Smooth the predicted values, as they are quite noisy
+- Fit the ridge regression/linear regression using robust models
+- Perform anomaly detection by comparing the predicted values versus the observed values. There are several methods for this, such as CAPA-CC, OCD and Inspect. 
 
 
 

@@ -17,10 +17,13 @@ install.packages("glmnet")
 library(glmnet)
 library(Krafthack2022)
 
-
+# SET DATA DIRECTORY (where you find the data sets)
+datadirectory ="/Users/peraugust/Documents/krafthack/Krafthack2022/data"
+# SET OUTPUT DIRECTORY
+outputdirectory = "/Users/peraugust/Documents/krafthack/Krafthack2022/data"
 
 # Data import
-data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
+data = read_krafthack_data(datadirectory)
 input1 = data[[1]]
 input2 = data[[2]]
 test = data[[3]]
@@ -80,10 +83,12 @@ for (i in 1:6) {
   test[, name] = pred_glmnet2
 }
 
+plot(test$Bolt_5_Tensile)
 # Revert back names (had to remove whitespaces as default R function do not allow it)
 
 # Dump predictions into CSV file
-write_csv_arrow()
+write_csv_arrow(test[,c(1,17:22)], file=sprintf("%s/predicted.csv", outputdirectory),
+                col_names=TRUE)
 
 plot(test$Bolt_6_Tensile,type="l")
 

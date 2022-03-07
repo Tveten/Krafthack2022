@@ -1,19 +1,20 @@
 # This script generates the predicted values componentwise
 
-# installation
-install.packages("devtools")
-devtools::install_github("Tveten/Krafthack2022")
+# Installation (uncomment the two next lines)
+#install.packages("devtools")
+#devtools::install_github("Tveten/Krafthack2022")
 
-#necessary libraries:
-install.packages("arrow")
+# Loading necessary libraries:
+
+#install.packages("arrow")
 library(arrow)
-install.packages("data.table")
+#install.packages("data.table")
 library(data.table)
-install.packages("ggplot2")
+#install.packages("ggplot2")
 library(ggplot2)
-install.packages("MASS")
+#install.packages("MASS")
 library(MASS)
-install.packages("glmnet")
+#install.packages("glmnet")
 library(glmnet)
 library(Krafthack2022)
 
@@ -34,7 +35,7 @@ input2$one_div_last_start = 1/(input2$within_segment_index - input2$burnin_stop+
 input2$one_div_last_start[is.infinite(input2$one_div_last_start)] = 0
 input2$one_div_last_start[is.na(input2$one_div_last_start)] = 0
 input2$one_div_last_start[input2$one_div_last_start<0] = 0
-input2$one_div_last_start = (input2$one_div_last_start)^(1/4)
+input2$one_div_last_start = (input2$one_div_last_start)^(1/2)
 input2$mode = as.factor(input2$mode)
 
 # Pre-processing test data
@@ -44,7 +45,7 @@ test$one_div_last_start = 1/(test$within_segment_index - test$burnin_stop+1)
 test$one_div_last_start[is.infinite(test$one_div_last_start)] = 0
 test$one_div_last_start[is.na(test$one_div_last_start)] = 0
 test$one_div_last_start[test$one_div_last_start<0] = 0
-test$one_div_last_start = (test$one_div_last_start)^(1/4)
+test$one_div_last_start = (test$one_div_last_start)^(1/2)
 test$mode = as.factor(test$mode)
 
 # R technicalities:
