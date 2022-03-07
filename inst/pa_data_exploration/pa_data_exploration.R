@@ -5,6 +5,7 @@ library(MASS)
 library(glmnet)
 library(robust)
 library(robustbase)
+library(Krafthack2022)
 #library()
 
 
@@ -38,7 +39,7 @@ mpe_lm_full
 plot(lm_full$fitted.values,type="l",col=2)
 lines(input2$Bolt_1_Tensile, col=1)
 #
-# elastic net:
+# ridge regression
 mmatrix1 = model.matrix(formula1, data= input2, subset= subset1)[subset1,]
 glmnet1 = cv.glmnet(mmatrix1,input2$Bolt_1_Tensile[subset1], alpha=0, type.measure="mae")
 mmatrix1_pred =model.matrix(formula1, data= input2, subset= subset1)[!subset1,]
@@ -48,8 +49,38 @@ lines(input2$Bolt_1_Tensile[!subset1], col=1)
 mpe(pred_glmnet1,input2$Bolt_1_Tensile[!subset1] )
 
 
+## adding seperate shutdown and burn-in periods
 input2 = find_burnin_and_shutdown(input2)
+input2$one_div_last_start = 1/input2$within_segment_index
+input2$one_div_last_start[is.infinite(input2$one_div_last_start)] = 0
+input2$mode = as.factor(input2$mode)
+covariates = c(names(input2)[c(1:2, 4:8,22)])
+#formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * (", paste(covariates[1:6], collapse="+"), ")")
+covariates = c(names(input2)[c(1:2, 4:8,22)])
+formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"))
+formula2 = formula(formulastring2)
+#training linear model on training data using all possible interactions
+lm2 = lm(formula=formula2, data = input2, subset = subset1)
+#predict on holdout set:
+predlm2 = predict(lm2, input2[!subset1,])
+mpe_lm2 = mpe(predlm2, input2$Bolt_1_Tensile[!subset1] )
+mpe_lm2
+ll = length(input2$Bolt_1_Tensile[!subset1])
+mpe(predlm2[round(ll/2):ll], (input2$Bolt_1_Tensile[!subset1] )[round(ll/2):ll])
 
+plot(predlm2,type="l",col=2)
+lines(input2$Bolt_1_Tensile[!subset1], col=1)
+
+# ridge regression
+mmatrix2 = model.matrix(formula2, data= input2, subset= subset1)[subset1,]
+glmnet2 = cv.glmnet(mmatrix2,input2$Bolt_1_Tensile[subset1], alpha=0, type.measure="mae")
+mmatrix2_pred =model.matrix(formula2, data= input2, subset= subset1)[!subset1,]
+pred_glmnet2 = predict(glmnet2,mmatrix2_pred)
+plot(pred_glmnet2,type="l",col=2)
+lines(input2$Bolt_1_Tensile[!subset1], col=1)
+mpe(pred_glmnet2,input2$Bolt_1_Tensile[!subset1] )
+ll = length(input2$Bolt_1_Tensile[!subset1])
+mpe(pred_glmnet2[round(ll/2):ll], (input2$Bolt_1_Tensile[!subset1] )[round(ll/2):ll])
 
 
 
