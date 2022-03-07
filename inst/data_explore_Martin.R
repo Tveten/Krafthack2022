@@ -8,19 +8,12 @@ library(Krafthack2022)
 base_height <- 1152
 base_width <- 2048
 
-dt <- as.data.table(arrow::read_parquet("../Data/input_dataset-2.parquet"))
-old_names <- names(dt)
-setnames(dt, old_names, str_replace_all(old_names, " ", "_"))
+data <- read_krafthack_data("../Data")
+input2 <- data[[1]]
+test_dt <- data[[2]]
 
-test_dt <- as.data.table(arrow::read_parquet("../Data/prediction_input.parquet"))
-old_names_test <- names(test_dt)
-setnames(test_dt, old_names_test, str_replace_all(old_names_test, " ", "_"))
-
-bolt_pretension <- fread("../Data/bolt_pretension.csv")
-
-numeric_columns <- names(dt)[!names(dt) %in% c("timepoints", "mode")]
 for (column in numeric_columns) {
-  ggplot(dt, aes_string("timepoints", column, colour = "mode")) +
+  ggplot(input2, aes_string("timepoints", column, colour = "mode")) +
     geom_point(size = 0.1)
 
   base_height <- 1152
@@ -34,10 +27,10 @@ for (column in numeric_columns) {
   )
 }
 
-numeric_columns <- names(dt)[!names(dt) %in% c("timepoints", "mode")]
+numeric_columns <- names(input2)[!names(input2) %in% c("timepoints", "mode")]
 for (column in numeric_columns) {
   ggplot(
-      dt[mode == "operation"],
+      input2[mode == "operation"],
       aes_string("timepoints", column)
     ) +
     geom_point(size = 0.1)
@@ -56,7 +49,7 @@ for (column in numeric_columns) {
 predictors <- names(test_dt)[-c(1, 8)]
 response <- "Bolt_3_Tensile"
 suppressWarnings(GGally::ggpairs(
-  dt,
+  input2,
   aes(colour = mode, fill = mode),
   columns = c(response, predictors, "mode"),
   legend = 1,
@@ -68,7 +61,7 @@ suppressWarnings(GGally::ggpairs(
 responses <- paste0("Bolt_", 1:6, "_Tensile")
 for (response in responses) {
   plots <- lapply(predictors, function(p) {
-    ggplot(dt, aes_string(p, response, colour = "mode")) +
+    ggplot(input2, aes_string(p, response, colour = "mode")) +
       geom_point(size = 0.1)
   })
   pp <- ggpubr::ggarrange(plotlist = plots, nrow = 2, ncol = 3)
@@ -82,16 +75,20 @@ for (response in responses) {
 }
 
 ## With burnin and shutdown periods.
-dt <- find_burnin_and_shutdown(dt)
+data <- read_krafthack_data("../Data")
+input2 <- data[[1]]
+test_dt <- data[[2]]
+input2 <- find_burnin_and_shutdown(input2)
+predictors <- names(test_dt)[-c(1, 8)]
 responses <- paste0("Bolt_", 1:6, "_Tensile")
 for (response in responses) {
   plots <- lapply(predictors, function(p) {
-    ggplot(dt, aes_string(p, response, colour = "mode")) +
+    ggplot(input2, aes_string(p, response, colour = "mode")) +
       geom_point(size = 0.1)
   })
   pp <- ggpubr::ggarrange(plotlist = plots, nrow = 2, ncol = 3)
   ggsave(
-    paste0(response, "_scatter.png"),
+    paste0(response, "_scatter_more_modes.png"),
     path = "images",
     width = 1.5 * base_width,
     height = 1.5 * base_height,
@@ -99,5 +96,15 @@ for (response in responses) {
   )
 }
 
-
+for (k in input2[, unique(segment_nr)]) {
+  ggplot(input2[segment_nr == k], aes(timepoints, Unit_4_Power, colour = mode)) +
+    geom_point(size = 0.1)
+  ggsave(
+    paste0("power_epoch", k, ".png"),
+    path = "images",
+    width = 1.5 * base_width,
+    height = 1.5 * base_height,
+    units = "px"
+  )
+}
 
