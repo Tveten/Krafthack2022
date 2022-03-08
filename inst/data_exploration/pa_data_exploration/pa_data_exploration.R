@@ -10,7 +10,7 @@ library(Krafthack2022)
 
 
 
-# data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
+#data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
 data = read_krafthack_data("../Data")
 input1 = data[[1]]
 input2 = data[[2]]
@@ -56,10 +56,10 @@ input2$one_div_last_start = 1/(input2$within_segment_index - input2$burnin_stop+
 input2$one_div_last_start[is.infinite(input2$one_div_last_start)] = 0
 input2$one_div_last_start[is.na(input2$one_div_last_start)] = 0
 input2$one_div_last_start[input2$one_div_last_start<0] = 0
-input2$one_div_last_start = (input2$one_div_last_start)^(1/4)
+input2$one_div_last_start = (input2$one_div_last_start)^(1/2)
 input2$mode = as.factor(input2$mode)
 covariates = c(names(input2)[c(1:2, 4:8)])
-formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * (", paste(covariates[1:6], collapse="+"), ")")
+formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * (", paste(covariates[1:2], collapse="+"), ")")
 #formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"), "+one_div_last_start * timepoints" )
 #covariates = c(names(input2)[c(1:2, 4:8,22)])
 #formulastring2 = paste("Bolt_1_Tensile  ~ ", paste(covariates, collapse="*"))
@@ -76,6 +76,7 @@ mpe(predlm2[round(ll/2):ll], (input2$Bolt_1_Tensile[!subset1] )[round(ll/2):ll])
 plot(predlm2,type="l",col=2)
 lines(input2$Bolt_1_Tensile[!subset1], col=1)
 
+tt = predict(lm2, test)
 
 # ridge regression
 mmatrix2 = model.matrix(formula2, data= input2, subset= subset1)[subset1,]
