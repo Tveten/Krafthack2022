@@ -5,7 +5,6 @@
 #devtools::install_github("Tveten/Krafthack2022")
 
 # Loading necessary libraries:
-
 #install.packages("arrow")
 library(arrow)
 #install.packages("data.table")
@@ -18,10 +17,12 @@ library(MASS)
 library(glmnet)
 library(Krafthack2022)
 
+# EDIT THIS:
+directory = "/Users/peraugust/Documents/krafthack/Krafthack2022/data"
 
 
 # Data import
-data = read_krafthack_data("/Users/peraugust/Documents/krafthack/Krafthack2022/data")
+data = read_krafthack_data(directory)
 input1 = data[[1]]
 input2 = data[[2]]
 test = data[[3]]
@@ -81,10 +82,9 @@ for (i in 1:6) {
   test[, name] = pred_glmnet2
 }
 
-# Revert back names (had to remove whitespaces as default R function do not allow it)
-
 # Dump predictions into CSV file
-write_csv_arrow()
+write_csv_arrow(test[,c(1,17:22)], file=directory,include_header = TRUE )
 
-plot(test$Bolt_6_Tensile,type="l")
+# plotting:
+#plot(test$Bolt_1_Tensile,type="l")
 
