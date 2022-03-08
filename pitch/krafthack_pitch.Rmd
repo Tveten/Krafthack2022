@@ -2,15 +2,15 @@
 title: "Krafthack pitch"
 author: "Martin Tveten & Per August Moen"
 date: "08/03/2022"
-# output: 
-#   ioslides_presentation:
-#     logo: images/NR_logo_grunnform_stor_rgb.jpg
-#     css: NR.css
-#     incremental: true
-#     widescreen: true
-#     transition: faster
 output:
-  pdf_document
+  ioslides_presentation:
+    logo: images/NR_logo_grunnform_stor_rgb.jpg
+    css: NR.css
+    incremental: true
+    widescreen: true
+    transition: faster
+# output:
+#   pdf_document
 ---
 
 
@@ -53,12 +53,15 @@ We find that there is a clear linear relationship between time and bolt tensiles
 ## Data findings
 - In the data there is an apparent non-stationarity. In our model training, we tried to remedy this by splitting the data into training data and test data in the following fashion:  We split the data into consecutive blocks of 200 observations. Each block alternates between being used as test data or training data. 
 
-## Augmentations
+## Augmentations -- burn-in and shutdown
 <!-- * Burn-in and shutdown modes. -->
 ![](../images/power_epoch23.png){width=70%}
 <!-- * Seconds since end of burn-in. -->
 
-We have chosen to augment the data set by introducing two new modes: "burnin" and "shutdown". In addition, we have introduced a new feature $f$ given by 
+We have chosen to augment the data set by introducing two new modes: "burnin" and "shutdown". 
+
+## Augmentations -- bump feature
+In addition, we have introduced a new feature $f$ given by 
 $$
 f = \frac{1}{t^{1/4}},
 $$
