@@ -50,9 +50,6 @@ We find that there is a clear linear relationship between time and bolt tensiles
 ## Data findings -- Bump in some tensils after burnin
 ![](../images/power_epoch17.png){width=70%}
 
-## Data findings
-- In the data there is an apparent non-stationarity. In our model training, we tried to remedy this by splitting the data into training data and test data in the following fashion:  We split the data into consecutive blocks of 200 observations. Each block alternates between being used as test data or training data. 
-
 ## Augmentations -- burn-in and shutdown
 <!-- * Burn-in and shutdown modes. -->
 ![](../images/power_epoch23.png){width=70%}
@@ -86,21 +83,54 @@ We use the "glmnet" package train the model.
 The (ridge) linear model is simple, with its only flexibility coming from the vast number of interactions. 
 
 - Crossplots reveal that many relationships are linear or near-linear, and adding transformations of features has not improved prediction. 
+- The ridge penalty reduces risk of overfitting. Chosen by cross-validation.
+- We 
 
-- The ridge penalty reduces risk of overfitting
+## Performance testing
+The data are clearly non-stationary. Validation regime:
+
+- Splitting into consecutive blocks of alternating training and validation sets.
+- Size of blocks: 200 observations.
+- I.e.: 50% training and 50% validation with an approximately uniform distribution.
+- Measure mean percentage error on validation data.
 
 
 ## Putting it into production
-- Predicting new data points is very fast (only a linear combination)
-- Training the models takes around 10-15 minutes on a single CPU core (the training is higly parallelizable)
 
-## Scalability and transferability
-- Scalability: The model is scalable, but an issue is that the model is not re-trained on new data points. An option is to consider re-training the model with robust regression, which even allows for anomalous points or segments to be included in the training set.
+- Predicting new data points is very fast (linear combination).
+- Simple and fast training.
+ 
+   * 10-15 minutes in single CPU core.
+   * Easy to parallelise.
+- Easy to understand and learn from the model.
+
+   * Can be verified against system experts.
+   
+## Work flow for anomaly detection
+
+1) Get sensor readings at time t.
+2) Predict tensile value at time t.
+3) Apply unsupervised anomaly detection method on prediction - observation.
 
 ## Things we would have done if we had more time
-- Smooth the predicted values, as they are quite noisy
-- Fit the ridge regression/linear regression using robust models
+
+- Smooth the predicted values, as they are quite noisy.
+- Fit the ridge regression/linear regression using robust models.
+- Randomise the performance testing.
+- Hyper-parameter tuning based on cross-validation with MPE as performance metric.
 - Perform anomaly detection by comparing the predicted values versus the observed values. There are several methods for this, such as CAPA-CC, OCD and Inspect. 
 
 
+## Scalability and transferability
+
+- The current model is quite general and can be used in many domains.
+
+  * Learn normal behaviour on training data.
+  * Look for anomalies in residuals.
+
+- Even more so if:
+
+  * Re-training as new data comes in.
+  * Outlier-robust regression model/loss function. As anomalies can enter the
+  data without being given too much weight in the normal behaviour model.
 
